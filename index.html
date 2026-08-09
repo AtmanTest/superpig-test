@@ -1764,7 +1764,7 @@ async function loadEvents() {
     CAL.events = (Array.isArray(data) ? data : []).map(e => ({
       id: e.id, title: e.title, date: e.date, category: e.category || "autres",
       start_time: (e.start_time || "").slice(0, 5), end_time: (e.end_time || "").slice(0, 5),
-      created_via: e.created_via || ""
+      created_via: e.created_via || "", location: e.location || "", note: e.note || ""
     }));
   } catch (e) {
     try {
@@ -2066,6 +2066,7 @@ function calOpenDay(ds) {
       "<div class='row'>" +
         "<span class='ico'>" + catIcon(e.category) + "</span>" +
         "<div class='tx'>" + e.title + (e.created_via === "telegram" ? " ✈️" : "") +
+          (e.note ? "<small style='color:#8a8590;font-weight:400'>📝 " + e.note + "</small>" : "") +
           "<small>" + catName(e.category, LANG) + (e.start_time ? " · " + remFmtTimeBkk(e.date, e.start_time) + (e.end_time ? "–" + remFmtTimeBkk(e.date, e.end_time) : "") : "") + "</small>" +
         "</div>" +
         "<button type='button' class='cal-ev-del' data-id='" + e.id + "' data-date='" + ds + "' title='" +
