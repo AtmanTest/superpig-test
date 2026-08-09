@@ -463,19 +463,29 @@
   }
   .pick-time button:hover { background: rgba(255,227,236,.75); }
   .pick-time button.sel { background:#14b8a6; border-color:#14b8a6; color:#fff; box-shadow:0 0 0 2px rgba(20,184,166,.3); }
-  /* Sélecteur heure précise : rangée heures + rangée minutes */
-  .pick-ttl { text-align:center; font-size:26px; font-weight:800; color:#d6336c;
-    font-variant-numeric: tabular-nums; padding:2px 0 8px; letter-spacing:1px; }
-  .pick-hours, .pick-mins { display:grid; grid-template-columns: repeat(6, 1fr); gap:4px; margin-bottom:6px; }
-  .pick-mins { grid-template-columns: repeat(10, 1fr); }
-  .pick-hours button, .pick-mins button {
-    border:1px solid rgba(214,51,108,.3); background: rgba(255,255,255,.5);
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-    border-radius:999px; padding:7px 0;
-    font: inherit; font-size:13px; font-weight:700; color:#333; cursor:pointer; text-align:center;
+  /* Roue style alarme Apple : heures | minutes, sélection centrale */
+  .wheel-box { position:relative; display:flex; gap:8px; padding:6px 0; }
+  .wheel {
+    flex:1; height:168px; overflow-y:auto; scroll-snap-type:y mandatory;
+    -webkit-overflow-scrolling:touch; text-align:center;
+    scrollbar-width:none; -ms-overflow-style:none;
+    background: rgba(255,255,255,.14); border-radius:16px;
+    border: 1px solid rgba(255,255,255,.28);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 22%, #000 78%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 22%, #000 78%, transparent 100%);
   }
-  .pick-hours button:hover, .pick-mins button:hover { background: rgba(255,227,236,.75); }
-  .pick-hours button.sel, .pick-mins button.sel { background:#14b8a6; border-color:#14b8a6; color:#fff; box-shadow:0 0 0 2px rgba(20,184,166,.3); }
+  .wheel::-webkit-scrollbar { display:none; }
+  .wheel-opt {
+    height:42px; line-height:42px; scroll-snap-align:center;
+    font-size:19px; font-weight:600; color:var(--dark); cursor:pointer;
+    font-variant-numeric:tabular-nums; user-select:none; white-space:nowrap;
+  }
+  .wheel-opt.sel { color:#fff; font-weight:800; }
+  .wheel-sel {
+    position:absolute; left:8px; right:8px; top:50%; height:42px; transform:translateY(-50%);
+    background: rgba(214,51,108,.35); border-radius:12px; pointer-events:none;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.35), 0 4px 14px rgba(214,51,108,.35);
+  }
   .rem-urgent {
     width: 36px; height: 36px; border-radius: 50%; border: 1px solid #f1a9c0;
     background: var(--bg-soft); font-size: 16px; cursor: pointer; transition: all .15s ease; flex:none;
@@ -788,9 +798,11 @@
                 <span class="pick-title" id="pt-title"></span>
                 <button type="button" class="pick-nav pick-clear" id="pt-clear" aria-label="Clear time">✕</button>
               </div>
-              <div class="pick-ttl" id="pt-value">--:--</div>
-              <div class="pick-hours" id="pt-hours"></div>
-              <div class="pick-mins" id="pt-mins"></div>
+              <div class="wheel-box">
+                <div class="wheel" id="pt-hours" aria-label="Hours"></div>
+                <div class="wheel" id="pt-mins" aria-label="Minutes"></div>
+                <div class="wheel-sel" aria-hidden="true"></div>
+              </div>
             </div>
           </div>
           <button type="button" class="rem-urgent" id="rem-loc" aria-pressed="false" title="Location">📍</button>
@@ -1468,41 +1480,18 @@ function remSetup() {
       fillLabels();
     }));
   }
-  const ptValue = document.getElementById("pt-value");
   const ptHours = document.getElementById("pt-hours");
   const ptMins = document.getElementById("pt-mins");
-  let tSelH = null, tSelM = null;
-  function renderTimePop() {
-    ptTitle.textContent = LANG === "th" ? "เลือกเวลา" : "Choose a time";
-    const [curH, curM] = (timeEl.value || "--:--").split(":");
-    tSelH = curH !== "--" ? curH : null;
-    tSelM = curM !== undefined && curM !== "--" ? curM : null;
-    const hours = [];
-    for (let h = 0; h < 24; h++) hours.push(String(h).padStart(2, "0"));
-    const mins = [];
-    for (let m = 0; m < 60; m++) mins.push(String(m).padStart(2, "0"));
-    ptHours.innerHTML = hours.map(h =>
-      "<button type='button' data-v='" + h + "' class='" + (tSelH === h ? "sel" : "") + "'>" + h + "</button>"
-    ).join("");
-    ptMins.innerHTML = mins.map(m =>
-      "<button type='button' data-v='" + m + "' class='" + (tSelM === m ? "sel" : "") + "'>" + m + "</button>"
-    ).join("");
-    updatePtValue();
-    ptHours.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
-      tSelH = b.dataset.v;
-      ptHours.querySelectorAll("button").forEach(x => x.classList.toggle("sel", x === b));
-      updatePtValue();
-      if (tSelM) commitTime();
-    }));
-    ptMins.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
-      tSelM = b.dataset.v;
-      ptMins.querySelectorAll("button").forEach(x => x.classList.toggle("sel", x === b));
-      updatePtValue();
-      if (tSelH) commitTime();
-    }));
+  let tSelH = null, tSelM = null, _wheelLock = false;
+  const WHEEL_H = 42;
+  function wheelScrollTo(w, val) {
+    w.scrollTop = Math.max(0, val * WHEEL_H);
   }
-  function updatePtValue() {
-    ptValue.textContent = (tSelH || "--") + ":" + (tSelM || "--");
+  function wheelCurrent(w) {
+    return Math.min(Math.max(Math.round(w.scrollTop / WHEEL_H), 0), w.children.length - 1);
+  }
+  function wheelSel(w, idx) {
+    [...w.children].forEach((c, i) => c.classList.toggle("sel", i === idx));
   }
   function commitTime() {
     timeEl.value = tSelH + ":" + tSelM;
@@ -1510,6 +1499,65 @@ function remSetup() {
     timePop.classList.remove("open");
     fillLabels();
   }
+  function renderTimePop() {
+    ptTitle.textContent = LANG === "th" ? "เลือกเวลา" : "Choose a time";
+    const [curH, curM] = (timeEl.value || "--:--").split(":");
+    tSelH = curH !== "--" ? curH : null;
+    tSelM = curM !== undefined && curM !== "--" ? curM : null;
+    ptHours.innerHTML = "";
+    ptMins.innerHTML = "";
+    for (let h = 0; h < 24; h++) {
+      const b = document.createElement("div");
+      b.className = "wheel-opt"; b.textContent = String(h).padStart(2, "0");
+      ptHours.appendChild(b);
+    }
+    for (let m = 0; m < 60; m++) {
+      const b = document.createElement("div");
+      b.className = "wheel-opt"; b.textContent = String(m).padStart(2, "0");
+      ptMins.appendChild(b);
+    }
+    // padding haut/bas pour que la 1re et la dernière valeur puissent se centrer
+    ptHours.style.paddingTop = ptHours.style.paddingBottom = (168 - WHEEL_H) / 2 + "px";
+    ptMins.style.paddingTop = ptMins.style.paddingBottom = (168 - WHEEL_H) / 2 + "px";
+    const hi = tSelH !== null ? parseInt(tSelH, 10) : 12;
+    const mi = tSelM !== null ? parseInt(tSelM, 10) : 0;
+    wheelScrollTo(ptHours, hi);
+    wheelScrollTo(ptMins, mi);
+    requestAnimationFrame(() => {
+      const h0 = wheelCurrent(ptHours), m0 = wheelCurrent(ptMins);
+      tSelH = String(h0).padStart(2, "0"); tSelM = String(m0).padStart(2, "0");
+      wheelSel(ptHours, h0); wheelSel(ptMins, m0);
+    });
+  }
+  function wireWheel(w, kind) {
+    let timer = null;
+    w.addEventListener("scroll", () => {
+      const i = wheelCurrent(w);
+      wheelSel(w, i);
+      if (kind === "h") tSelH = String(i).padStart(2, "0");
+      else tSelM = String(i).padStart(2, "0");
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        if (tSelH !== null && tSelM !== null && !_wheelLock) {
+          _wheelLock = true;
+          commitTime();
+          setTimeout(() => { _wheelLock = false; }, 350);
+        }
+      }, 420);
+    }, { passive: true });
+    w.addEventListener("click", e => {
+      const c = e.target.closest(".wheel-opt");
+      if (!c) return;
+      const i = [...w.children].indexOf(c);
+      wheelScrollTo(w, i);
+      if (kind === "h") tSelH = String(i).padStart(2, "0");
+      else tSelM = String(i).padStart(2, "0");
+      wheelSel(w, i);
+      if (tSelH !== null && tSelM !== null) commitTime();
+    });
+  }
+  wireWheel(ptHours, "h");
+  wireWheel(ptMins, "m");
   function closePops() { datePop.classList.remove("open"); timePop.classList.remove("open"); }
   dateBtn.addEventListener("click", () => {
     timePop.classList.remove("open");
