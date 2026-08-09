@@ -434,25 +434,26 @@
   }
   .pick-pop.open { display:block; }
   .pick-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-  .pick-title { font-size:13px; font-weight:800; color:#d6336c; letter-spacing:.2px; }
+  .pick-title { font-size:13px; font-weight:800; color:var(--accent); letter-spacing:.2px; }
   .pick-nav {
-    width:28px; height:28px; border-radius:50%; border:1px solid rgba(214,51,108,.4);
-    background: rgba(255,255,255,.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-    color:#d6336c; font-size:16px; font-weight:700; cursor:pointer; line-height:1;
+    width:28px; height:28px; border-radius:50%; border:1px solid var(--pink);
+    background: color-mix(in srgb, var(--card) 60%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    color:var(--accent); font-size:16px; font-weight:700; cursor:pointer; line-height:1;
     display:flex; align-items:center; justify-content:center;
   }
-  .pick-nav:hover { background: rgba(255,227,236,.8); }
+  body.dark .pick-nav { background: rgba(255,255,255,.14); border-color: rgba(255,158,194,.5); }
+  .pick-nav:hover { background: var(--line); }
   .pick-nav.pick-clear { font-size:11px; }
   .pick-dow { display:grid; grid-template-columns: repeat(7, 1fr); gap:2px; margin-bottom:4px; }
-  .pick-dow span { text-align:center; font-size:10px; font-weight:800; color:#d4578a; padding:3px 0; }
+  .pick-dow span { text-align:center; font-size:10px; font-weight:800; color:var(--pink); padding:3px 0; }
   .pick-grid { display:grid; grid-template-columns: repeat(7, 1fr); gap:2px; }
   .pick-grid button {
     border:none; background:transparent; border-radius:10px; padding:7px 0;
-    font: inherit; font-size:12.5px; font-weight:700; color:#333; cursor:pointer; text-align:center;
+    font: inherit; font-size:12.5px; font-weight:700; color:var(--txt-1); cursor:pointer; text-align:center;
   }
   .pick-grid button:hover { background:var(--line); }
-  .pick-grid button.other { color:#c9a3b4; font-weight:500; }
-  .pick-grid button.today { color:#d6336c; }
+  .pick-grid button.other { color:var(--rose); opacity:.55; font-weight:500; }
+  .pick-grid button.today { color:var(--accent); }
   .pick-grid button.sel { background:#14b8a6; color:#fff; box-shadow:0 0 0 2px rgba(20,184,166,.3), 0 3px 10px rgba(20,184,166,.4); }
   .pick-time { display:grid; grid-template-columns: repeat(4, 1fr); gap:4px; max-height:180px; overflow-y:auto; }
   .pick-time button {
