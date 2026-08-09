@@ -1521,13 +1521,18 @@ function remSetup() {
     ptMins.style.paddingTop = ptMins.style.paddingBottom = (168 - WHEEL_H) / 2 + "px";
     const hi = tSelH !== null ? parseInt(tSelH, 10) : 12;
     const mi = tSelM !== null ? parseInt(tSelM, 10) : 0;
-    wheelScrollTo(ptHours, hi);
-    wheelScrollTo(ptMins, mi);
-    requestAnimationFrame(() => {
-      const h0 = wheelCurrent(ptHours), m0 = wheelCurrent(ptMins);
-      tSelH = String(h0).padStart(2, "0"); tSelM = String(m0).padStart(2, "0");
-      wheelSel(ptHours, h0); wheelSel(ptMins, m0);
-    });
+    // scroll APRÈS ouverture (display:block) sinon scrollTop reste à 0
+    _wheelLock = true;
+    setTimeout(() => {
+      wheelScrollTo(ptHours, hi);
+      wheelScrollTo(ptMins, mi);
+      requestAnimationFrame(() => {
+        const h0 = wheelCurrent(ptHours), m0 = wheelCurrent(ptMins);
+        tSelH = String(h0).padStart(2, "0"); tSelM = String(m0).padStart(2, "0");
+        wheelSel(ptHours, h0); wheelSel(ptMins, m0);
+        setTimeout(() => { _wheelLock = false; }, 600);
+      });
+    }, 30);
   }
   function wireWheel(w, kind) {
     let timer = null;
