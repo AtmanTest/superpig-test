@@ -466,7 +466,7 @@
   /* Roue style alarme Apple : heures | minutes, sélection centrale */
   .wheel-box { position:relative; display:flex; gap:8px; padding:6px 0; }
   .wheel {
-    flex:1; height:168px; overflow-y:auto; scroll-snap-type:y mandatory;
+    flex:1; height:150px; overflow-y:auto; scroll-snap-type:y mandatory;
     -webkit-overflow-scrolling:touch; text-align:center;
     scrollbar-width:none; -ms-overflow-style:none;
     background: rgba(255,255,255,.14); border-radius:16px;
@@ -476,15 +476,25 @@
   }
   .wheel::-webkit-scrollbar { display:none; }
   .wheel-opt {
-    height:42px; line-height:42px; scroll-snap-align:center;
-    font-size:19px; font-weight:600; color:var(--dark); cursor:pointer;
+    height:38px; line-height:38px; scroll-snap-align:center;
+    font-size:17px; font-weight:600; color:var(--dark); cursor:pointer;
     font-variant-numeric:tabular-nums; user-select:none; white-space:nowrap;
   }
   .wheel-opt.sel { color:#fff; font-weight:800; }
   .wheel-sel {
-    position:absolute; left:8px; right:8px; top:50%; height:42px; transform:translateY(-50%);
+    position:absolute; left:8px; right:8px; top:50%; height:38px; transform:translateY(-50%);
     background: rgba(214,51,108,.35); border-radius:12px; pointer-events:none;
     box-shadow: 0 0 0 1px rgba(255,255,255,.35), 0 4px 14px rgba(214,51,108,.35);
+  }
+  .pick-nav.pick-ok { background:#14b8a6; border-color:#14b8a6; color:#fff; font-size:14px; }
+  /* ── Responsive : petit écran → popup centré plein écran (jamais coupé) ── */
+  @media (max-width: 560px) {
+    #pick-time-pop, #pick-date-pop {
+      position: fixed; left:50%; top:50%; transform:translate(-50%,-50%);
+      width: min(320px, calc(100vw - 32px)); max-width:none; margin:0;
+      box-shadow: 0 24px 60px rgba(214,51,108,.35), 0 4px 16px rgba(0,0,0,.25);
+    }
+    #pick-time-pop .wheel { height: 140px; }
   }
   .rem-urgent {
     width: 36px; height: 36px; border-radius: 50%; border: 1px solid #f1a9c0;
@@ -796,7 +806,10 @@
             <div class="pick-pop" id="pick-time-pop" role="dialog" aria-label="Time picker">
               <div class="pick-head">
                 <span class="pick-title" id="pt-title"></span>
-                <button type="button" class="pick-nav pick-clear" id="pt-clear" aria-label="Clear time">✕</button>
+                <span style="display:flex;gap:6px;align-items:center">
+                  <button type="button" class="pick-nav pick-ok" id="pt-ok" aria-label="OK time" title="OK">✓</button>
+                  <button type="button" class="pick-nav pick-clear" id="pt-clear" aria-label="Clear time">✕</button>
+                </span>
               </div>
               <div class="wheel-box">
                 <div class="wheel" id="pt-hours" aria-label="Hours"></div>
@@ -1482,8 +1495,8 @@ function remSetup() {
   }
   const ptHours = document.getElementById("pt-hours");
   const ptMins = document.getElementById("pt-mins");
-  let tSelH = null, tSelM = null, _wheelLock = false;
-  const WHEEL_H = 42;
+  let tSelH = null, tSelM = null;
+  const WHEEL_H = 38;
   function wheelScrollTo(w, val) {
     w.scrollTop = Math.max(0, val * WHEEL_H);
   }
@@ -1517,12 +1530,11 @@ function remSetup() {
       ptMins.appendChild(b);
     }
     // padding haut/bas pour que la 1re et la dernière valeur puissent se centrer
-    ptHours.style.paddingTop = ptHours.style.paddingBottom = (168 - WHEEL_H) / 2 + "px";
-    ptMins.style.paddingTop = ptMins.style.paddingBottom = (168 - WHEEL_H) / 2 + "px";
+    ptHours.style.paddingTop = ptHours.style.paddingBottom = (150 - WHEEL_H) / 2 + "px";
+    ptMins.style.paddingTop = ptMins.style.paddingBottom = (150 - WHEEL_H) / 2 + "px";
     const hi = tSelH !== null ? parseInt(tSelH, 10) : 12;
     const mi = tSelM !== null ? parseInt(tSelM, 10) : 0;
     // scroll APRÈS ouverture (display:block) sinon scrollTop reste à 0
-    _wheelLock = true;
     setTimeout(() => {
       wheelScrollTo(ptHours, hi);
       wheelScrollTo(ptMins, mi);
@@ -1530,26 +1542,18 @@ function remSetup() {
         const h0 = wheelCurrent(ptHours), m0 = wheelCurrent(ptMins);
         tSelH = String(h0).padStart(2, "0"); tSelM = String(m0).padStart(2, "0");
         wheelSel(ptHours, h0); wheelSel(ptMins, m0);
-        setTimeout(() => { _wheelLock = false; }, 600);
       });
     }, 30);
   }
   function wireWheel(w, kind) {
-    let timer = null;
+    // au scroll : on met à jour la sélection, on NE ferme PAS (validation par ✓)
     w.addEventListener("scroll", () => {
       const i = wheelCurrent(w);
       wheelSel(w, i);
       if (kind === "h") tSelH = String(i).padStart(2, "0");
       else tSelM = String(i).padStart(2, "0");
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        if (tSelH !== null && tSelM !== null && !_wheelLock) {
-          _wheelLock = true;
-          commitTime();
-          setTimeout(() => { _wheelLock = false; }, 350);
-        }
-      }, 420);
     }, { passive: true });
+    // clic sur une valeur : scroll doux vers elle, on ne ferme pas
     w.addEventListener("click", e => {
       const c = e.target.closest(".wheel-opt");
       if (!c) return;
@@ -1558,11 +1562,14 @@ function remSetup() {
       if (kind === "h") tSelH = String(i).padStart(2, "0");
       else tSelM = String(i).padStart(2, "0");
       wheelSel(w, i);
-      if (tSelH !== null && tSelM !== null) commitTime();
     });
   }
   wireWheel(ptHours, "h");
   wireWheel(ptMins, "m");
+  // ✓ OK : valide et ferme
+  document.getElementById("pt-ok").addEventListener("click", () => {
+    if (tSelH !== null && tSelM !== null) commitTime();
+  });
   function closePops() { datePop.classList.remove("open"); timePop.classList.remove("open"); }
   dateBtn.addEventListener("click", () => {
     timePop.classList.remove("open");
