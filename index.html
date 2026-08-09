@@ -1064,16 +1064,11 @@ function applyLang() {
   }
 }
 
-/* ═════════ Login ═════════ */
+/* ═════════ Login (recette : mot de passe temporairement désactivé — Enter suffit) ═════════ */
 const PASSWORD = "smoothie";
 function tryLogin() {
-  const v = document.getElementById("pwd").value.trim().toLowerCase();
-  if (v === PASSWORD) {
-    sessionStorage.setItem("pp_auth", "1");
-    showApp();
-  } else {
-    document.getElementById("login-err").textContent = LANG === "th" ? "รหัสผิด ❌" : "wrong password ❌";
-  }
+  sessionStorage.setItem("pp_auth", "1");
+  showApp();
 }
 document.getElementById("login-form").addEventListener("submit", e => { e.preventDefault(); tryLogin(); });
 
