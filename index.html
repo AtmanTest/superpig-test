@@ -482,11 +482,12 @@
     font-size:17px; font-weight:600; color:var(--dark); cursor:pointer;
     font-variant-numeric:tabular-nums; user-select:none; white-space:nowrap;
   }
-  .wheel-opt.sel { color:#fff; font-weight:800; }
+  .wheel-opt.sel { color:#fff; font-weight:800; text-shadow: 0 1px 3px rgba(0,0,0,.45); }
   .wheel-sel {
     position:absolute; left:8px; right:8px; top:50%; height:38px; transform:translateY(-50%);
-    background: rgba(214,51,108,.35); border-radius:12px; pointer-events:none;
-    box-shadow: 0 0 0 1px rgba(255,255,255,.35), 0 4px 14px rgba(214,51,108,.35);
+    background: linear-gradient(135deg, rgba(214,51,108,.92), rgba(255,107,157,.85));
+    border-radius:12px; pointer-events:none;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.45), 0 4px 14px rgba(214,51,108,.5);
   }
   .pick-nav.pick-ok { background:#14b8a6; border-color:#14b8a6; color:#fff; font-size:14px; }
   /* ── Popup toujours centré plein écran (jamais coupé, tous viewports) ── */
