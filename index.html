@@ -487,15 +487,13 @@
     box-shadow: 0 0 0 1px rgba(255,255,255,.35), 0 4px 14px rgba(214,51,108,.35);
   }
   .pick-nav.pick-ok { background:#14b8a6; border-color:#14b8a6; color:#fff; font-size:14px; }
-  /* ── Responsive : petit écran → popup centré plein écran (jamais coupé) ── */
-  @media (max-width: 560px) {
-    #pick-time-pop, #pick-date-pop {
-      position: fixed; left:50%; top:50%; transform:translate(-50%,-50%);
-      width: min(320px, calc(100vw - 32px)); max-width:none; margin:0;
-      box-shadow: 0 24px 60px rgba(214,51,108,.35), 0 4px 16px rgba(0,0,0,.25);
-    }
-    #pick-time-pop .wheel { height: 140px; }
+  /* ── Popup toujours centré plein écran (jamais coupé, tous viewports) ── */
+  #pick-time-pop, #pick-date-pop {
+    position: fixed; left:50%; top:50%; transform:translate(-50%,-50%);
+    width: min(320px, calc(100vw - 32px)); max-width:none; margin:0;
+    box-shadow: 0 24px 60px rgba(214,51,108,.35), 0 4px 16px rgba(0,0,0,.25);
   }
+  #pick-time-pop .wheel { height: 140px; }
   .rem-urgent {
     width: 36px; height: 36px; border-radius: 50%; border: 1px solid #f1a9c0;
     background: var(--bg-soft); font-size: 16px; cursor: pointer; transition: all .15s ease; flex:none;
@@ -1530,8 +1528,8 @@ function remSetup() {
       ptMins.appendChild(b);
     }
     // padding haut/bas pour que la 1re et la dernière valeur puissent se centrer
-    ptHours.style.paddingTop = ptHours.style.paddingBottom = (150 - WHEEL_H) / 2 + "px";
-    ptMins.style.paddingTop = ptMins.style.paddingBottom = (150 - WHEEL_H) / 2 + "px";
+    ptHours.style.paddingTop = ptHours.style.paddingBottom = (140 - WHEEL_H) / 2 + "px";
+    ptMins.style.paddingTop = ptMins.style.paddingBottom = (140 - WHEEL_H) / 2 + "px";
     const hi = tSelH !== null ? parseInt(tSelH, 10) : 12;
     const mi = tSelM !== null ? parseInt(tSelM, 10) : 0;
     // scroll APRÈS ouverture (display:block) sinon scrollTop reste à 0
