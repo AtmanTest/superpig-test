@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-15 23:30 Paris",
+  "generated_at": "2026-08-16 00:00 Paris",
   "joy": {
-    "mood_today": 3,
+    "mood_today": null,
     "mood_note": "",
     "moods": [
       {
@@ -46,7 +46,7 @@
     "energy": 70,
     "goal": "",
     "streak": 0,
-    "meds_today": "xanax 2,  propranolol 40mg,  ritaline 20mg"
+    "meds_today": ""
   },
   "papapig": {
     "persona": "papapig",
