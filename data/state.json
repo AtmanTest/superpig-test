@@ -1,9 +1,28 @@
 {
-  "generated_at": "2026-08-15 10:05 Paris",
+  "generated_at": "2026-08-15 10:06 Paris",
   "joy": {
-    "mood_today": null,
+    "mood_today": 3,
     "mood_note": "",
-    "moods": [],
+    "moods": [
+      {
+        "date": "2026-08-09",
+        "mood": 3,
+        "mood_am": null,
+        "mood_pm": 3,
+        "note": "annule",
+        "axe": "นอนเร็วขึ้น 💤 / dormir plus tôt 💤",
+        "meds": ""
+      },
+      {
+        "date": "2026-08-15",
+        "mood": 3,
+        "mood_am": null,
+        "mood_pm": 3,
+        "note": "",
+        "axe": "",
+        "meds": "xanax 2,  propranolol 40mg,  ritaline 20mg"
+      }
+    ],
     "meals": [
       {
         "emoji": "🍽️",
@@ -27,7 +46,7 @@
     "energy": 70,
     "goal": "",
     "streak": 0,
-    "meds_today": ""
+    "meds_today": "xanax 2,  propranolol 40mg,  ritaline 20mg"
   },
   "papapig": {
     "persona": "papapig",
