@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-06 13:00 Paris",
+  "generated_at": "2026-09-06 13:30 Paris",
   "joy": {
     "mood_today": null,
     "mood_note": "",
@@ -192,17 +192,17 @@
       "pop": 28
     },
     "2026-09-06": {
-      "tmax": 28.2,
+      "tmax": 28.9,
       "tmin": 15.6,
       "pop": 3
     },
     "2026-09-07": {
-      "tmax": 27.8,
-      "tmin": 20.7,
+      "tmax": 27.5,
+      "tmin": 20.8,
       "pop": 3
     },
     "2026-09-08": {
-      "tmax": 21.5,
+      "tmax": 24.0,
       "tmin": 16.6,
       "pop": 66
     },
